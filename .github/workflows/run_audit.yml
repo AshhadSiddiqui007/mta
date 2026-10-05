@@ -1,0 +1,30 @@
+name: MTA-STS Cloud Pipeline
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests playwright
+          playwright install chromium --with-deps
+
+      - name: Run Pipeline
+        env:
+          OPENROUTER_KEY: ${{ secrets.OPENROUTER_KEY }}
+          GAS_WEB_APP_URL: ${{ secrets.GAS_WEB_APP_URL }}
+        run: |
+          python main.py
